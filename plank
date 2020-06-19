@@ -1,0 +1,58 @@
+c*     Programa flujo: calcula el flujo total de un cuerpo negro
+c      definicion de variables
+       Real*8 b,l,t,c1,c2,fac,f,lmax,c,sig,dl
+       Real*8 b1,b2,l1,l2,bmax,fac1,fac2,f1,f2
+       integer i,n,n1,n2
+c
+c           ingreso de datos
+        write(*,*)'ingrese la temperatura en Kelvin'
+         read(*,*)t
+c      constantes
+         c1=3.742d-5*0.01d0*0.01d0*1.0d-7
+         c2=1.4388d0*0.01d0
+         c=0.28976d0*0.01d0
+         sig=5.67d-8
+c        calculo long de onda maximo con ley de wien
+         lmax=c/t
+c        calculo ley de planck para el maximo de long de onda
+         fac=dexp(c2/lmax/t)
+         fac=fac-1.0d0
+         fac=fac*lmax*lmax*lmax*lmax*lmax
+         bmax=c1/fac
+c        inicializo valores limites
+         b1=bmax
+         b2=bmax
+c        inicializo variables de conteo
+         f=0.0d0
+c         total de bucles
+         n=100000000
+c         inicia lazo
+         do i=1,n
+c          calcula para long de onda menores al maximo
+          if(b1.gt.0.0001d0*bmax)then
+          l1=lmax-1.0d3*dfloat(i)*lmax/dfloat(n)
+          fac1=dexp(c2/l1/t)-1.0d0
+          fac1=fac1*l1*l1*l1*l1*l1
+          b1=c1/fac1
+          f1=f1+b1*1.0d3*lmax/dfloat(n)
+          end if
+c          calcula para long de onda mayores al maximo
+          if(b2.gt.0.0001d0*bmax)then
+          l2=lmax+1.0d4*dfloat(i)*lmax/dfloat(n)
+          fac2=dexp(c2/l2/t)-1.0d0
+          fac2=fac2*l2*l2*l2*l2*l2
+          b2=c1/fac2
+          f2=f2+b2*1.0d4*lmax/dfloat(n)
+          end if
+c         fin del lazo
+         end do
+c           salida de resultado
+         write(*,*) 'El flujo total calculado numericamente en W/m2 es:' 
+         write(*,200) f1+f2
+c           comparacion con valor exacto
+         write(*,*) 'El flujo segun Ley S-B en W/m2 es:'
+         write(*,200) sig*t*t*t*t  
+c          formato
+ 200    format (1p20e24.15)
+c          fin del programa
+         end
